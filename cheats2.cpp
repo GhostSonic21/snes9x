@@ -194,7 +194,7 @@
 #include "cheats.h"
 #include "bml.h"
 
-static inline uint8 S9xGetByteFree (uint32 Address)
+/*static inline uint8 S9xGetByteFree (uint32 Address)
 {
     int	block = (Address & 0xffffff) >> MEMMAP_SHIFT;
     uint8 *GetAddress = Memory.Map[block];
@@ -278,9 +278,9 @@ static inline uint8 S9xGetByteFree (uint32 Address)
         byte = OpenBus;
         return (byte);
     }
-}
+}*/
 
-static inline void S9xSetByteFree (uint8 Byte, uint32 Address)
+/*static inline void S9xSetByteFree (uint8 Byte, uint32 Address)
 {
     int block = (Address & 0xffffff) >> MEMMAP_SHIFT;
     uint8 *SetAddress = Memory.Map[block];
@@ -367,7 +367,7 @@ static inline void S9xSetByteFree (uint8 Byte, uint32 Address)
     default:
         return;
     }
-}
+}*/
 
 void S9xInitWatchedAddress (void)
 {

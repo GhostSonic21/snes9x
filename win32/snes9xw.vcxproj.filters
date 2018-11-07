@@ -276,6 +276,9 @@
     <ClInclude Include="image_functions.h">
       <Filter>GUI\VideoDriver</Filter>
     </ClInclude>
+    <ClInclude Include="..\MusicSilencer.h">
+      <Filter>Emu</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\bsx.cpp">
@@ -592,6 +595,9 @@
     </ClCompile>
     <ClCompile Include="image_functions.cpp">
       <Filter>GUI\VideoDriver</Filter>
+    </ClCompile>
+    <ClCompile Include="..\MusicSilencer.cpp">
+      <Filter>Emu</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

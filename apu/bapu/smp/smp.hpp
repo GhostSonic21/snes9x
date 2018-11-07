@@ -2,6 +2,7 @@ class SMP : public Processor {
 public:
   static const uint8 iplrom[64];
   uint8 *apuram;
+  uint8(*volumeCallback)(uint8, uint16) = NULL;
 
   enum { Threaded = false };
   alwaysinline void synchronize_cpu();

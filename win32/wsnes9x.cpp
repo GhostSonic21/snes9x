@@ -234,6 +234,7 @@
 #include "InputCustom.h"
 #include <vector>
 #include <string>
+#include "MusicSilencer.h"
 
 #ifdef DEBUGGER
 #include "../debug.h"
@@ -1415,6 +1416,13 @@ int HandleKeyMessage(WPARAM wParam, LPARAM lParam)
 				!Settings.DisableGraphicWindows);
 		}
 
+		// Silence music key functionality
+		if (wParam == CustomKeys.SilenceMusic.key
+		&& modifiers == CustomKeys.SilenceMusic.modifiers)
+		{
+			toggleMusicDisable();
+		}
+
 		// don't pull down menu if alt is a hotkey or the menu isn't there, unless no game is running
 		if(!Settings.StopEmulation && ((wParam == VK_MENU || wParam == VK_F10) && (hitHotKey || GetMenu (GUI.hWnd) == NULL) && !GetAsyncKeyState(VK_F4)))
 			return 0;
@@ -2440,6 +2448,20 @@ LRESULT CALLBACK WinProc(
 			DialogBox(g_hInst, MAKEINTRESOURCE(IDD_ROM_INFO), hWnd, DlgInfoProc);
 			RestoreSNESDisplay ();
 			break;
+		// GhostSonic's Additions
+		case ID_MUSICENGINE_DISABLED:
+			setMusicEngine(Disabled);
+			break;
+		case ID_MUSICENGINE_SUPERMARIOWORLD_VANILLA:
+			setMusicEngine(SMW_Vanilla);
+			break;
+		case ID_MUSICENGINE_SUPERMARIOWORLD_MUSIK:
+			setMusicEngine(SMW_Musik);
+			break;
+		case ID_SOUND_DISABLEMUSIC:
+			toggleMusicDisable();
+			break;
+
 		default:
 			if ((wParam & 0xffff) >= 0xFF00)
 			{
@@ -3943,6 +3965,12 @@ static void CheckMenuStates ()
     SetMenuItemInfo (GUI.hMenu, ID_SOUND_SYNC, FALSE, &mii);
     SetMenuItemInfo (GUI.hMenu, ID_SOUND_INTERPOLATED, FALSE, &mii);
 
+	// Additions??
+	SetMenuItemInfo(GUI.hMenu, ID_MUSICENGINE_DISABLED, FALSE, &mii);
+	SetMenuItemInfo(GUI.hMenu, ID_MUSICENGINE_SUPERMARIOWORLD_VANILLA, FALSE, &mii);
+	SetMenuItemInfo(GUI.hMenu, ID_MUSICENGINE_SUPERMARIOWORLD_MUSIK, FALSE, &mii);
+	SetMenuItemInfo(GUI.hMenu, ID_SOUND_DISABLEMUSIC, FALSE, &mii);
+
     SetMenuItemInfo (GUI.hMenu, ID_SOUND_16MS, FALSE, &mii);
     SetMenuItemInfo (GUI.hMenu, ID_SOUND_32MS, FALSE, &mii);
     SetMenuItemInfo (GUI.hMenu, ID_SOUND_48MS, FALSE, &mii);
@@ -4007,6 +4035,18 @@ static void CheckMenuStates ()
         SetMenuItemInfo (GUI.hMenu, ID_SOUND_STEREO, FALSE, &mii);
     if (Settings.SoundSync)
         SetMenuItemInfo (GUI.hMenu, ID_SOUND_SYNC, FALSE, &mii);
+
+	// Music silencer highlighting
+	MusicEngine currentEngine = getCurrentMusicEngine();
+	if (currentEngine == Disabled)
+		SetMenuItemInfo (GUI.hMenu, ID_MUSICENGINE_DISABLED, FALSE, &mii);
+	else if (currentEngine == SMW_Vanilla)
+		SetMenuItemInfo(GUI.hMenu, ID_MUSICENGINE_SUPERMARIOWORLD_VANILLA, FALSE, &mii);
+	else if (currentEngine == SMW_Musik)
+		SetMenuItemInfo(GUI.hMenu, ID_MUSICENGINE_SUPERMARIOWORLD_MUSIK, FALSE, &mii);
+
+	if (getMusicDisabled())
+		SetMenuItemInfo(GUI.hMenu, ID_SOUND_DISABLEMUSIC, FALSE, &mii);
 
     if (!Settings.Stereo)
         mii.fState |= MFS_DISABLED;
@@ -8346,6 +8386,11 @@ static void set_hotkeyinfo(HWND hDlg)
 {
 	int index = SendDlgItemMessage(hDlg,IDC_HKCOMBO,CB_GETCURSEL,0,0);
 
+	// GhostSonic's Dumb Ternary-based hack to hide mostly everything on page 5
+	for (int i = 0; i < 12; i++) {
+		ShowWindow(GetDlgItem(hDlg, IDC_HOTKEY2 + i), index >=4 ? SW_HIDE:SW_SHOW);
+	}
+
 	switch(index)
 	{
 	case 0:
@@ -8401,6 +8446,8 @@ static void set_hotkeyinfo(HWND hDlg)
 		SendDlgItemMessage(hDlg,IDC_HOTKEY12,WM_USER+44, CustomKeys.LoadFileSelect.key, CustomKeys.LoadFileSelect.modifiers);
 		SendDlgItemMessage(hDlg,IDC_HOTKEY13,WM_USER+44,CustomKeys.QuitS9X.key,CustomKeys.QuitS9X.modifiers);
 		break;
+	case 4:
+		SendDlgItemMessage(hDlg, IDC_HOTKEY1, WM_USER + 44, CustomKeys.SilenceMusic.key, CustomKeys.SilenceMusic.modifiers);
 	}
 
 	SendDlgItemMessage(hDlg,IDC_SLOTPLUS,WM_USER+44,CustomKeys.SlotPlus.key,CustomKeys.SlotPlus.modifiers);
@@ -8472,6 +8519,14 @@ static void set_hotkeyinfo(HWND hDlg)
 		SetDlgItemText(hDlg,IDC_LABEL_HK13,HOTKEYS_LABEL_4_13);
 
 		break;
+
+	case 4:
+		SetDlgItemText(hDlg, IDC_LABEL_HK1,HOTKEYS_LABEL_5_1);
+		// Blank the other text
+		for (int i = 0; i < 12; i++) {
+			SetDlgItemText(hDlg, IDC_LABEL_HK2 + i, TEXT(""));
+		}
+		break;
 	}
 }
 
@@ -8502,7 +8557,7 @@ switch(msg)
 		SetWindowText(hDlg,HOTKEYS_TITLE);
 
 		// insert hotkey page list items
-		for(i=1 ; i <= 4 ; i++)
+		for(i=1 ; i <= 5 ; i++)
 		{
 			TCHAR temp[256];
 			_stprintf(temp,HOTKEYS_HKCOMBO,i);
@@ -8558,6 +8613,7 @@ switch(msg)
 			if(index == 1) CustomKeys.BGL1.key = wParam,    CustomKeys.BGL1.modifiers = modifiers;
 			if(index == 2) CustomKeys.TurboA.key = wParam,    CustomKeys.TurboA.modifiers = modifiers;
 			if(index == 3) CustomKeys.SelectSave[0].key = wParam,	CustomKeys.SelectSave[0].modifiers = modifiers;
+			if(index == 4) CustomKeys.SilenceMusic.key = wParam, CustomKeys.SilenceMusic.modifiers = modifiers;
 			break;
 		case IDC_HOTKEY2:
 			if(index == 0) CustomKeys.SpeedDown.key = wParam, CustomKeys.SpeedDown.modifiers = modifiers;

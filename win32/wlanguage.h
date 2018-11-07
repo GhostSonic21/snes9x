@@ -308,6 +308,7 @@ Nintendo is a trade mark.")
 #define HOTKEYS_LABEL_4_11 TEXT("Save To File")
 #define HOTKEYS_LABEL_4_12 TEXT("Load From File")
 #define HOTKEYS_LABEL_4_13 TEXT("Quit Snes9x")
+#define HOTKEYS_LABEL_5_1 TEXT("Music Toggle")
 
 // gaming buttons and axes
 #define GAMEDEVICE_JOYNUMPREFIX "(J%x)" // don't change this

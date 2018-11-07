@@ -513,6 +513,7 @@ struct SCustomKeys {
     SCustomKey SaveFileSelect;
     SCustomKey LoadFileSelect;
     SCustomKey Mute;
+	SCustomKey SilenceMusic;
 };
 
 struct SJoypad {

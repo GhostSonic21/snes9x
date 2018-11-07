@@ -697,6 +697,10 @@ BEGIN
         BOTTOMMARGIN, 83
     END
 
+    IDD_NETCONNECT, DIALOG
+    BEGIN
+    END
+
     IDD_DIALOG_SHADER_PARAMS, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -1030,6 +1034,13 @@ BEGIN
         MENUITEM "&16-Bit Sound",               ID_SOUND_16BIT
         MENUITEM "&Stereo",                     ID_SOUND_STEREO
         MENUITEM "&Reverse Stereo\tAlt+R",      ID_SOUND_REVERSE_STEREO
+        POPUP "Music Engine"
+        BEGIN
+            MENUITEM "(Disabled)",                  ID_MUSICENGINE_DISABLED
+            MENUITEM "Super Mario World (Vanilla)", ID_MUSICENGINE_SUPERMARIOWORLD_VANILLA
+            MENUITEM "Super Mario World (AddMusicK)", ID_MUSICENGINE_SUPERMARIOWORLD_MUSIK
+        END
+        MENUITEM "Disable Music",               ID_SOUND_DISABLEMUSIC
         MENUITEM SEPARATOR
         MENUITEM "S&ync Sound\tAlt+]",          ID_SOUND_SYNC
         MENUITEM "&Settings...\tAlt+T",         ID_SOUND_OPTIONS

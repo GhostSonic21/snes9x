@@ -670,6 +670,19 @@ void S9xAPUWritePort (int port, uint8 byte)
 	SNES::cpu.port_write (port & 3, byte);
 }
 
+// Hack function to get APURam bytes
+uint8 S9xAPUGetByte(uint16 address) {
+	return SNES::smp.apuram[address];
+}
+
+void S9xAPUSetByte(uint8 byte, uint16 address) {
+	SNES::smp.apuram[address] = byte;
+}
+
+void S9xAPUSetWriteCallback(uint8 (*volumeCallback)(uint8,uint16)) {
+	SNES::smp.volumeCallback = volumeCallback;
+}
+
 void S9xAPUSetReferenceTime (int32 cpucycles)
 {
 	spc::reference_time = cpucycles;
