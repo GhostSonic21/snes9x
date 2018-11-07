@@ -194,7 +194,7 @@
 
 /* This is where all the GUI text strings will eventually end up */
 
-#define WINDOW_TITLE TEXT("Snes9X v%s for Windows")
+#define WINDOW_TITLE TEXT("Snes9X v%s for Windows (Music Toggle)")
 
 // the windows registry is no longer used
 //#define MY_REG_KEY   "Software\\Emulators\\Snes9X"
