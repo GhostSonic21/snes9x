@@ -38,6 +38,9 @@ uint8 SMP::op_read(uint16 addr) {
   #endif
   if((addr & 0xfff0) == 0x00f0) return mmio_read(addr);
   if(addr >= 0xffc0 && status.iplrom_enable) return iplrom[addr & 0x3f];
+  // Filters out volume reads 
+  if (volumeCallback != NULL)
+	  return (*volumeCallback)(apuram[addr], addr);
   return apuram[addr];
 }
 
@@ -46,9 +49,6 @@ void SMP::op_write(uint16 addr, uint8 data) {
   tick();
   #endif
   if((addr & 0xfff0) == 0x00f0) mmio_write(addr, data);
-  else if (addr < 0x00F0 && volumeCallback != NULL) {
-	  data = (*volumeCallback)(data,addr);
-  }
   apuram[addr] = data;  //all writes go to RAM, even MMIO writes
 }
 

@@ -36,8 +36,6 @@ uint8 volumeFilter(uint8 data, uint16 addr) {
 	
 	// Vanilla
 	if (musicStatus.engine == SMW_Vanilla && addr == 0x57) {
-		// Save volume
-		musicStatus.currentVolume = data;
 		if (musicStatus.disabled) {
 			// Find song and see if it's fine
 			uint8 songRead = S9xAPUGetByte(0x0006);
@@ -48,8 +46,6 @@ uint8 volumeFilter(uint8 data, uint16 addr) {
 	}
 	// MusicK
 	else if (musicStatus.engine == SMW_Musik && addr == 0x57) {
-		// Save volume
-		musicStatus.currentVolume = data;
 		// Find song and see if it's fine
 		if (musicStatus.disabled) {
 			uint8 songRead = S9xGetByteFree(0x1dfb);
@@ -71,26 +67,20 @@ void setMusicEngine(MusicEngine engine) {
 }
 
 bool toggleMusicDisable() {
-	musicStatus.disabled = !musicStatus.disabled;
-	// Turn off immediatley
 	if (musicStatus.engine != Disabled) {
+		musicStatus.disabled = !musicStatus.disabled;
 		if (musicStatus.disabled) {
-			// Resave the volume just in case
-			musicStatus.currentVolume = S9xAPUGetByte(0x57);
-			// Turn it off if applicable
-			S9xAPUSetByte(volumeFilter(musicStatus.currentVolume,0x57), 0x57);
 			// Message
-			S9xMessage(S9X_INFO, 0, "Music Disabled.");
+			S9xMessage(S9X_INFO, 0, "Music Disabled");
 		}
 		// Turn on immediatley
 		else {
-			S9xAPUSetByte(musicStatus.currentVolume, 0x57);
 			// Message
-			S9xMessage(S9X_INFO, 0, "Music Enabled.");
+			S9xMessage(S9X_INFO, 0, "Music Enabled");
 		}
 	}
 	else {
-		S9xMessage(S9X_INFO, 0, "Set The Music Engine First.");
+		S9xMessage(S9X_INFO, 0, "Set the Music Engine First");
 	}
 	return musicStatus.disabled;
 }

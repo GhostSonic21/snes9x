@@ -49,7 +49,6 @@ enum MusicEngine {
 struct MusicStatus {
 	MusicEngine engine = Disabled;
 	bool disabled = false;
-	uint8 currentVolume = 0;
 };
 
 void setMusicEngine(MusicEngine);
